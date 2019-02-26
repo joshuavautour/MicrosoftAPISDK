@@ -33,10 +33,10 @@ class MicrosoftAPIAuthentication extends RESTsol {
 	public function oauth2UsingProgramSecret($authTenantIdStr, $authClientIdStr, $authClientSecretStr, $authResourceRequestStr, $authVersionStr='v2.0'){
 
 		logInfo("Calling public method oauth2UsingProgramSecret in class MicrosoftAPIAuthentication\n", 9);
-		logInfo("Requestion permission to access: ".$authRequestStr."\n", 9);
+		logInfo("Requestion permission to access: ".$authResourceRequestStr."\n", 9);
 
 		$this->requestUrl = 'https://login.microsoftonline.com/'.$authTenantIdStr.'/oauth2/'.$authVersionStr.'/token';
-		logInfo("Auth request URL: ".$authRequestUrl."\n", 5);
+		logInfo("Auth request URL: ".$this->requestUrl."\n", 5);
 
 		/**
 		 * At this time only v2.0 authtencitatoion is suppoted
@@ -46,7 +46,7 @@ class MicrosoftAPIAuthentication extends RESTsol {
 			logInfo("Auth request Data: ".$authRequestData."\n", 5);
 		} else {
 			logInfo("Error - unsupported auth version\n", 9);
-			throw new Exception('Unsupport auth version');
+			throw new Exception('Unsupported auth version');
 		}
 
 		/**
@@ -57,18 +57,18 @@ class MicrosoftAPIAuthentication extends RESTsol {
 		/**
 		 * add the authentication headers to {@link $requestHeaders}
 		 */
-		logInfo("Graph request Headers: ".serialize($this->requestHeaders)."\n", 9);
-
-		/**
-		 * configure the standard curl options
-		 */
-		$this->requestConfigure();
+		logInfo("REST request Headers: ".serialize($this->requestHeaders)."\n", 9);
 
 		/**
 		 * Set the curl option for the quth request
 		 */
 		curl_setopt($this->requestHandle, CURLOPT_POST, 1);
 		curl_setopt($this->requestHandle, CURLOPT_POSTFIELDS, $authRequestData);
+
+		/**
+		 * configure the standard curl options
+		 */
+		$this->requestConfigure();
 
 		/**
 		 * Execute the curl request
