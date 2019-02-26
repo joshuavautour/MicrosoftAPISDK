@@ -66,18 +66,21 @@ class MicrosoftAPIRequest extends RESTsol{
 		logInfo("Graph request Headers: ".serialize($this->requestHeaders)."\n", 9);
 
 		/**
-		 * Set curl URL and header data
+		 * configure the standard curl options
 		 */
-		curl_setopt($this->requestHandle, CURLOPT_URL, $this->requestUrl);
-		curl_setopt($this->requestHandle, CURLOPT_HTTPHEADER, $this->requestHeaders);
+		$this->requestConfigure();
 
-		// Execute the curl request
+		/**
+		 * Execute the curl request
+		 */
+		$this->requestExecute();
 
-		$graphRequestResult = $this->requestExecute();
-
+		/**
+		 * Destory the curl handle
+		 */
 		$this->requestDestroy();
 
-		return $graphRequestResult;
+		return $this->requestResult;
 	}
 }
 
