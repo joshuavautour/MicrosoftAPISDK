@@ -64,12 +64,14 @@ class RESTsol {
                  * Make sure the curl handle is valid
                  */
                 if (!is_resource($this->requestHandle)) {
+                          logInfo("Attempting to configure a curl handle that is not initialized\n", 1);
                           throw new Exception('The curl handle has not been initialized');
                 }
 
                 /**
                  * Set curl URL and header data
                  */
+                logInfo("Configuring standard curl parameters\n", 5);
                 curl_setopt($this->requestHandle, CURLOPT_URL, $this->requestUrl);
                 curl_setopt($this->requestHandle, CURLOPT_HTTPHEADER, $this->requestHeaders);
                 curl_setopt($this->requestHandle, CURLOPT_RETURNTRANSFER, 1);
@@ -108,13 +110,13 @@ class RESTsol {
                           throw new Exception('The curl handle has not been initialized');
                 }
 
-                $this->$requestResult = curl_exec($this->requestHandle);
+                $this->requestResult = curl_exec($this->requestHandle);
                 if(!$this->requestResult) {
                         logInfo("Curl request failed with message: ".curl_error($this->requestHandle)."\n", 5);
                         throw new Exception('Curl request failed');
                         return false;
                 }
-                logInfo("Curl auth request successful: ".serialize(curl_getinfo($this->requestHandle))."\n", 5);
+                logInfo("Curl request successful: ".serialize(curl_getinfo($this->requestHandle))."\n", 5);
                 return true;
         }
 }
