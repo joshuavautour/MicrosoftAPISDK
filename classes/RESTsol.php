@@ -1,35 +1,44 @@
 <?PHP
 /**
  * Contains the class RESTsol
- *
- * @author      Joshua Vautour <joshua@speedoflogic.com>
- * @version     0.1.0
  * @package     MicrosoftAPISDK
  */
 
 /**
  * Base class REST requests
- *
+ * @author      Joshua Vautour <joshua@speedoflogic.com>
+ * @version     0.1.0
  * @package     MicrosoftAPISDK
- *
  */
 
 class RESTsol {
 
-        /*
+        /**
          * @var resource $requestHandle         Curl Handle
          */
         protected $requestHandle = null;
 
-        /*
-         * @var array $authHeaderData           Array of strings containing curl request headers
+        /**
+         * @var array       Array of strings containing curl request headers
          */
-        protected $authHeaderData = array (
+        protected $requestHeaders = array (
                 "'Accept': 'application/json'",
                 "'Content-Type': 'application/json; charset=utf-8'",
                 "'accept-language': en-US'",
                 "'User-Agent': 'SOLPHPSDK/0.1'",
         );
+
+        /**
+         * REST request URL
+         * @var string
+         */
+        protected $requestUrl = '';
+
+        /**
+         * REST request result
+         * @var mixed
+         */
+        protected $requestResult = '';
 
         /**
          * Initializes the curl resource $requestHandle
@@ -45,31 +54,67 @@ class RESTsol {
         }
 
         /**
+         * Set the standard request options
+         * @throws Exception if the curl handle {@link $requestHandle} has not been initialized
+         * @return void
+         */
+        protected function requestConfigure() {
+
+                /**
+                 * Make sure the curl handle is valid
+                 */
+                if (!is_resource($this->requestHandle)) {
+                          throw new Exception('The curl handle has not been initialized');
+                }
+
+                /**
+                 * Set curl URL and header data
+                 */
+                curl_setopt($this->requestHandle, CURLOPT_URL, $this->requestUrl);
+                curl_setopt($this->requestHandle, CURLOPT_HTTPHEADER, $this->requestHeaders);
+                curl_setopt($this->requestHandle, CURLOPT_RETURNTRANSFER, 1);
+        }
+
+        /**
          * Destroys the curl handle {@link $requestHandle}
+         * @throws Exception if the curl handle {@link $requestHandle} has not been initialized
          * @return void
          */
         protected function requestDestroy() {
+                /**
+                 * Make sure the curl handle is valid
+                 */
+                if (!is_resource($this->requestHandle)) {
+                          throw new Exception('The curl handle has not been initialized');
+                }
+
                 curl_close($this->requestHandle);
                 logInfo("Destroying curl handle\n", 5);
         }
 
         /**
          * Peforms a curl_exec on handle {@link $requestHandle}
+         * @throws Exception if the curl handle {@link $requestHandle} has not been initialized
          * @throws Exception if the curl request fails to execute successfully
-         * @return mixed Returns the transfer data on success and false on failure
+         * @return boolean  Returns true on success or false on a failure
          */
         protected function requestExecute() {
                 logInfo("Executing curl request\n", 5);
 
-                //      Configure curl to return the result
-                curl_setopt($this->requestHandle, CURLOPT_RETURNTRANSFER, 1);
+                /**
+                 * Make sure the curl handle is valid
+                 */
+                if (!is_resource($this->requestHandle)) {
+                          throw new Exception('The curl handle has not been initialized');
+                }
 
-                $curlResultMix = curl_exec($this->requestHandle);
-                if(!$curlResultMix) {
+                $this->$requestResult = curl_exec($this->requestHandle);
+                if(!$this->requestResult) {
                         logInfo("Curl request failed with message: ".curl_error($this->requestHandle)."\n", 5);
                         throw new Exception('Curl request failed');
+                        return false;
                 }
                 logInfo("Curl auth request successful: ".serialize(curl_getinfo($this->requestHandle))."\n", 5);
-                return $curlResultMix;
+                return true;
         }
 }
